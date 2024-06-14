@@ -1,0 +1,53 @@
+version: '3.8'
+services:
+  mongo1:
+    image: mongo:latest
+    volumes:
+      - mongo1_data:/data/db
+    ports:
+      - 27017:27017
+    command: mongod --replSet rs0 --bind_ip_all
+    networks:
+      - mongo-network
+
+  mongo2:
+    image: mongo:latest
+    volumes:
+      - mongo2_data:/data/db
+    ports:
+      - 27018:27017
+    command: mongod --replSet rs0 --bind_ip_all
+    networks:
+      - mongo-network
+
+  mongo3:
+    image: mongo:latest
+    volumes:
+      - mongo3_data:/data/db
+    ports:
+      - 27019:27017
+    command: mongod --replSet rs0 --bind_ip_all
+    networks:
+      - mongo-network
+
+  backend:
+    build: ./mon-projet-backend
+    volumes:
+      - ./mon-projet-backend:/app
+    ports:
+      - 5000:5000
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+    networks:
+      - mongo-network
+
+volumes:
+  mongo1_data:
+  mongo2_data:
+  mongo3_data:
+
+networks:
+  mongo-network:
+    driver: bridge
